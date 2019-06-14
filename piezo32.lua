@@ -7,6 +7,16 @@
 
 local M = {}
 
+M.notes = {
+    C = 2441,
+    D = 2741,
+    E = 3048,
+    F = 3255,
+    G = 3654,
+    A = 4058,
+    B = 4562
+}
+
 local channel = nil
 local timer = nil 
 
@@ -73,22 +83,22 @@ local function do_step(_timer)
     else
         step = 1
         play_step = true
-        options = nil
+
+        if options.on_done ~= nil then
+            options.on_done()
+        end
     end
 end
 
 M.play = function(opts)
-    if options ~= nil then
-        return -- Busy...
-    end
-    
     options = extend({
         freq = 3000,
-        duty = 4000,
+        duty = 3750,
         play_duration = 1000,
         pause_duration = 0,
         times = 1,
-        on_step = nil
+        on_step = nil,
+        on_done = nil
     }, opts)
     
     do_step()
@@ -110,6 +120,21 @@ M.error = function(opts)
     }, opts))
 end
 
+M.play_music = function(mstr)
+    if #mstr < 2 then
+        return
+    end
+    
+    M.play({
+        freq = M.notes[mstr:sub(1, 1)],
+        play_duration = 325 * tonumber(mstr:sub(2, 2)),
+        pause_duration = 50,
+        on_done = function()
+            M.play_music(mstr:sub(3))
+        end
+    })
+end
+
 --[[
     @config - {
         gpio
@@ -123,7 +148,7 @@ return function(config)
         timer     = ledc.TIMER_0,
         channel   = ledc.CHANNEL_0,
         frequency = 500,
-        duty      = 4000
+        duty      = 3750
     })
 
     channel:stop(ledc.IDLE_LOW)
