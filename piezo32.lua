@@ -105,8 +105,8 @@ end
 
 M.error = function(opts)
     M.play(extend({
-        freq = 600,
-        play_duration = 750
+        freq = 100,
+        play_duration = 1000
     }, opts))
 end
 
