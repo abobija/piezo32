@@ -14,6 +14,16 @@ local step = 1
 local play_step = true
 local options = nil
 
+local function extend(tbl, with)
+    if with ~= nil then
+        for k, v in pairs(with) do
+            tbl[k] = with[k]
+        end
+    end
+
+    return tbl
+end
+
 local function do_step(_timer)
     local interval = 0
     
@@ -23,12 +33,26 @@ local function do_step(_timer)
         channel:resume()
         interval = options.play_duration
         timer:interval(interval)
+        
+        if options.on_step ~= nil then
+            options.on_step({
+                playing = true,
+                freq = options.freq
+            })
+        end
+        
         play_step = false
     else
         interval = options.pause_duration
         
         if interval > 0 or step >= options.times then
             channel:stop(ledc.IDLE_LOW)
+
+            if options.on_step ~= nil then
+                options.on_step({
+                    playing = false
+                })
+            end
         end
             
         if interval > 0 then
@@ -49,45 +73,41 @@ local function do_step(_timer)
     else
         step = 1
         play_step = true
+        options = nil
     end
 end
 
---[[
-    @options - {
-        freq,
-        duty,
-        play_duration,
-        pause_duration,
-        times
-    }
-]]
 M.play = function(opts)
-    if step > 1 then
+    if options ~= nil then
         return -- Busy...
     end
     
-    options = opts
+    options = extend({
+        freq = 3000,
+        duty = 4000,
+        play_duration = 1000,
+        pause_duration = 0,
+        times = 1,
+        on_step = nil
+    }, opts)
+    
     do_step()
 end
 
-M.success = function()
-    M.play({
+M.success = function(opts)
+    M.play(extend({
         freq = 2700,
-        duty = 4000,
         play_duration = 100,
         pause_duration = 25,
         times = 2
-    })
+    }, opts))
 end
 
-M.error = function()
-    M.play({
-        freq = 700,
-        duty = 4000,
-        play_duration = 750,
-        pause_duration = 0,
-        times = 1
-    })
+M.error = function(opts)
+    M.play(extend({
+        freq = 600,
+        play_duration = 750
+    }, opts))
 end
 
 --[[
@@ -103,7 +123,7 @@ return function(config)
         timer     = ledc.TIMER_0,
         channel   = ledc.CHANNEL_0,
         frequency = 500,
-        duty      = 500
+        duty      = 4000
     })
 
     channel:stop(ledc.IDLE_LOW)
