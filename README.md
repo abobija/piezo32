@@ -60,7 +60,7 @@ piezo.play_music('B1A1G1A1B1B1B2A1A1A2B1B1B2B1A1G1A1B1B1B2A1A1B1A1G2G2')
 
 ### Example 6
 
-Tinkle Twinkle Little Star
+Twinkle Twinkle Little Star
 
 ```lua 
 piezo.play_music('C1C1G1G1A1A1G2F1F1E1E1D1D1C2')
