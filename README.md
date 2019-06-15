@@ -1,5 +1,5 @@
 # piezo32
-Piezo speaker Lua [NodeMCU] library
+Piezo buzzer Lua [NodeMCU] library
 
 ## Demo
 
