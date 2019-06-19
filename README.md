@@ -65,3 +65,10 @@ Twinkle Twinkle Little Star
 ```lua 
 piezo.play_music('C1C1G1G1A1A1G2F1F1E1E1D1D1C2')
 ```
+
+## Dependencies
+
+Project depends on the following NodeMCU modules:
+
+  - `tmr`
+  - `ledc`
